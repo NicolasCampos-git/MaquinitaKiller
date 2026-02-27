@@ -1,7 +1,7 @@
 # MaquinitaKiller
 
 <p align="center">
-  <img src="./banner.png" alt="MaquinitaKiller Logo" width="600">
+  <img src="./banner.png" alt="MaquinitaKiller Logo" width="300">
 </p>
 
 CLI interactiva para hacking ético. Guía la ejecución de herramientas de reconocimiento, fuzzing y explotación, explicando cada flag seleccionada y lanzando los comandos de forma segura mediante `zx`.
