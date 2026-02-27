@@ -1,107 +1,97 @@
 # MaquinitaKiller
 
-Una herramienta de interfaz de línea de comandos (CLI) interactiva, pensada para estudiantes y aficionados a la ciberseguridad y el hacking ético. Su objetivo principal es **reducir la fricción** a la hora de resolver máquinas vulnerables , facilitando la ejecución de varias herramientas de reconocimiento, fuzzing, escaneo y explotación, permitiendo enfocarte **en comprender la vulnerabilidad** y aprender las flags correctas de forma guiada, en vez de frustrarte buscando la sintaxis olvidada de un comando largo.
+<p align="center">
+  <img src="./banner.png" alt="MaquinitaKiller Logo" width="600">
+</p>
 
-## Filosofía
+CLI interactiva para hacking ético. Guía la ejecución de herramientas de reconocimiento, fuzzing y explotación, explicando cada flag seleccionada y lanzando los comandos de forma segura mediante `zx`.
 
-> "Mejor entender por qué un `-sC` funciona, que solo copiar y pegar".
+> "Mejor entender por qué un `-sC` funciona, que solo copiar y pegar."
 
-Esta herramienta guía interactivamente los flujos comunes de comandos complejos como **nmap**, **gobuster**, **curl** y **sqlmap**. Te pregunta el objetivo y te explica el significado de cada bandera o modo seleccionado, integrando todo y lanzando el comando de manera segura a la terminal nativa subyacente de Linux usando `zx`.
+Herramientas integradas: **nmap**, **gobuster**, **curl**, **sqlmap**.
 
 ---
 
 ## Estructura del Proyecto
 
-El proyecto está diseñado pensando en la mantenibilidad y modularidad. Una estructura que divide responsabilidades para que agregar, corregir o estudiar una herramienta sea intuitivo.
-
 ```txt
 .
-├── main.js                  # Punto de entrada. Interfaz principal y validaciones del PATH.
-├── package.json             # Manejo de dependencias (zx y @inquirer/prompts).
-├── utils/                   # Herramientas globales.
-│   └── constants.js         # Constantes, strings como botones de `Atrás`, etc.
+├── main.js                  # Punto de entrada y router principal.
+├── package.json             # Dependencias (zx, @inquirer/prompts).
+├── utils/
+│   └── constants.js         # Constantes globales.
 │
-├── nmap/                    # Módulo para nmap
-│   ├── constants.js         # Definición del menú de nmap, flags con explicaciones y reglas.
-│   ├── validations.js       # Reglas de incompatibilidad entre las flags de nmap.
-│   └── index.js             # Lógica de recolección de variables e inyección a zx.
+├── nmap/
+│   ├── constants.js         # Flags y menús de nmap.
+│   ├── validations.js       # Reglas de incompatibilidad de flags.
+│   └── index.js             # Lógica e integración con zx.
 │
-├── gobuster/                # Módulo para gobuster (Misma estructura de nmap).
+├── gobuster/
 │   ├── constants.js
 │   └── index.js
 |
-├── sqlmap/                  # Módulo de sqlmap.
+├── sqlmap/
 │   ├── constants.js
 │   └── index.js
 |
-└── curl/                    # Módulo de utilería HTTP base y manual
+└── curl/
     ├── constants.js
     └── index.js
 ```
 
-### ¿Cómo Funciona la Ejecución? (`main.js`)
+### `main.js`
 
-El archivo `main.js` no procesa argumentos. Su única función es desplegar el menú maestro y actuar como puente (router) a la herramienta escogida.
+Despliega el menú principal y enruta a la herramienta seleccionada.
 
-1. **El array de herramientas (`TOOLS`)**: Contiene la definición de cada integración:
-   - `name`: Nombre que se muestra en la CLI.
-   - `value`: ID interno que se usa en las opciones del menú Inquirer.
-   - `binary`: El nombre del ejecutable subyacente en el sistema operativo (ej: `"nmap"`).
-   - `handler`: Promesa o función a llamar (importada de su módulo homónimo, por ej.`handleNmap`) en caso de ser seleccionado.
-
-2. **Validación Preventiva (Check Path)**: Antes de lanzar la función `handler` y ensuciar la terminal con errores extraños de NodeJS, `main.js` busca si el OS cuenta con ese `binary` instalado usando el comando invisible `$which`. Si no existe, el programa lo avisa y corta el flujo cordialmente.
+- **`TOOLS`**: Array con la definición de cada integración (`name`, `value`, `binary`, `handler`).
+- **Validación de PATH**: Verifica con `which` que el binario esté instalado antes de ejecutar. Si no existe, informa al usuario y aborta.
 
 ---
 
-## ¿Cómo integrar una herramienta nueva?
+## Agregar una herramienta nueva
 
-La filosofía modular facilita integrar una herramienta en no más de 10 minutos. Digamos que queremos agregar **`ffuf`**.
+Ejemplo con **`ffuf`**:
 
-1. **Crear su propio directorio y su módulo**:
-   Crea la carpeta de tu herramienta `./ffuf/` y adentro, crea `constants.js` y `index.js`. 
+1. **Crear el directorio `./ffuf/`** con `constants.js` e `index.js`.
 
-2. **Declarar sus flags y menús** (`constants.js`):
-   Agrupa en arreglos amigables para _Inquirer_ las banderas que desees. Recuerda añadir las descripciones que dejen al usuario un entendimiento de lo que hace.
+2. **Definir flags en `constants.js`**:
    ```javascript
    export const FFUF_FLAGS = [
-     { name: '-H', value: '-H', description: 'Añadir un Header personalizado a la peticion.' },
-     { name: '-w', value: '-w', description: 'Wordlist (Ruta del archivo con iteraciones).' }
+     { name: '-H', value: '-H', description: 'Header personalizado.' },
+     { name: '-w', value: '-w', description: 'Wordlist.' }
    ];
-   export const FFUF_FLAGS_CON_VALOR = ['-H', '-w']; // Flags que requieren ser solicitadas y pedir input al usuario de qué van a cargar.
+   export const FFUF_FLAGS_CON_VALOR = ['-H', '-w'];
    ```
 
-3. **Ineractuar y construir la llamada segura** (`index.js`):
-   Importa la lógica UI de Inquirer de NPM y tus constantes. Al final, toda recolección de parámetros terminará en un Array de Strings (jamás construir comandos interpolando strings para zx, esto previene inyecciones).
+3. **Implementar el handler en `index.js`**:
    ```javascript
    import { input, checkbox } from '@inquirer/prompts';
    import 'zx/globals';
-   
+
    export async function handleFfuf() {
-       // ... lógicas usando inquirer para armar cmdArgs (flags + variables interactivas)
-       
-       const cmdArgs = ['-w', wordlist, '-u', url]
-       
-       // Una vez tengas el arreglo resultante, pásalo a zx (importante no usar `${cmdArgs.join()}`)
+       const cmdArgs = ['-w', wordlist, '-u', url];
        try {
            const result = await $`ffuf ${cmdArgs}`;
            console.log(result.stdout);
        } catch (error) {
-           console.error("Algo fallo con FFUF:", error);
+           console.error('Error en FFUF:', error);
        }
    }
    ```
-4. **Registrarlo en el CLI Principal** (`main.js`):
-   Importa tu función y agrega el objeto al listado maestro.
+
+4. **Registrar en `main.js`**:
    ```javascript
-   import { handleFfuf } from './ffuf/index.js'
-   
+   import { handleFfuf } from './ffuf/index.js';
+
    const TOOLS = [
-       ...
+       // ...
        { name: 'ffuf', value: 'ffuf', binary: 'ffuf', handler: handleFfuf }
-   ]
+   ];
    ```
-¡Y eso es todo!
+
+---
 
 ## Requisitos
-* **NodeJS 16+** y NPM.
-* Herramientas mencionadas nativamente instaladas en tu Path (`sudo apt-get install nmap gobuster sqlmap curl`) 
+
+- **Node.js 16+** y npm.
+- Herramientas instaladas en el PATH: `sudo apt-get install nmap gobuster sqlmap curl`
