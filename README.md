@@ -1,8 +1,8 @@
-# CLI Cyber 💻🛡️
+# MaquinitaKiller
 
-Una herramienta de interfaz de línea de comandos (CLI) interactiva, pensada para estudiantes y aficionados a la ciberseguridad corporativa y el hacking ético. Su objetivo principal es **reducir la fricción** a la hora de resolver máquinas vulnerables (como en _HackTheBox_ o _TryHackMe_), facilitando la ejecución de varias herramientas de reconocimiento, fuzzing, escaneo y explotación, permitiendo enfocarte **en comprender la vulnerabilidad** y aprender las flags correctas de forma guiada, en vez de frustrarte buscando la sintaxis olvidada de un comando largo.
+Una herramienta de interfaz de línea de comandos (CLI) interactiva, pensada para estudiantes y aficionados a la ciberseguridad y el hacking ético. Su objetivo principal es **reducir la fricción** a la hora de resolver máquinas vulnerables , facilitando la ejecución de varias herramientas de reconocimiento, fuzzing, escaneo y explotación, permitiendo enfocarte **en comprender la vulnerabilidad** y aprender las flags correctas de forma guiada, en vez de frustrarte buscando la sintaxis olvidada de un comando largo.
 
-## 🚀 Filosofía
+## Filosofía
 
 > "Mejor entender por qué un `-sC` funciona, que solo copiar y pegar".
 
@@ -10,13 +10,13 @@ Esta herramienta guía interactivamente los flujos comunes de comandos complejos
 
 ---
 
-## 📂 Estructura del Proyecto
+## Estructura del Proyecto
 
 El proyecto está diseñado pensando en la mantenibilidad y modularidad. Una estructura que divide responsabilidades para que agregar, corregir o estudiar una herramienta sea intuitivo.
 
 ```txt
 .
-├── main.js                  # 🚀 Punto de entrada. Interfaz principal y validaciones del PATH.
+├── main.js                  # Punto de entrada. Interfaz principal y validaciones del PATH.
 ├── package.json             # Manejo de dependencias (zx y @inquirer/prompts).
 ├── utils/                   # Herramientas globales.
 │   └── constants.js         # Constantes, strings como botones de `Atrás`, etc.
@@ -53,7 +53,7 @@ El archivo `main.js` no procesa argumentos. Su única función es desplegar el m
 
 ---
 
-## 🛠️ ¿Cómo integrar una herramienta nueva?
+## ¿Cómo integrar una herramienta nueva?
 
 La filosofía modular facilita integrar una herramienta en no más de 10 minutos. Digamos que queremos agregar **`ffuf`**.
 
@@ -102,6 +102,6 @@ La filosofía modular facilita integrar una herramienta en no más de 10 minutos
    ```
 ¡Y eso es todo!
 
-## ⚠️ Requisitos
+## Requisitos
 * **NodeJS 16+** y NPM.
 * Herramientas mencionadas nativamente instaladas en tu Path (`sudo apt-get install nmap gobuster sqlmap curl`) 
