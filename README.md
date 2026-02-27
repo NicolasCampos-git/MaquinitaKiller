@@ -6,8 +6,6 @@
 
 CLI interactiva para hacking ético. Guía la ejecución de herramientas de reconocimiento, fuzzing y explotación, explicando cada flag seleccionada y lanzando los comandos de forma segura mediante `zx`.
 
-> "Mejor entender por qué un `-sC` funciona, que solo copiar y pegar."
-
 Herramientas integradas: **nmap**, **gobuster**, **curl**, **sqlmap**.
 
 ---
