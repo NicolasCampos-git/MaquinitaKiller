@@ -1,6 +1,34 @@
 import { select, input, checkbox } from '@inquirer/prompts'
 import 'zx/globals'
-import { GOBUSTER_MODES, GOBUSTER_FLAGS, GOBUSTER_COMMON_FLAGS, GOBUSTER_FLAGS_CON_VALOR } from './constants.js'
+import { GOBUSTER_MODES, GOBUSTER_FLAGS, GOBUSTER_COMMON_FLAGS, GOBUSTER_FLAGS_CON_VALOR, GOBUSTER_WORDLISTS } from './constants.js'
+
+async function selectWordlist(mode) {
+    const choices = GOBUSTER_WORDLISTS[mode]
+
+    if (!choices) {
+        // Fallback para modos sin wordlists precargadas
+        const wl = await input({
+            message: 'Ruta al wordlist (vacío para volver)',
+        })
+        return wl || null
+    }
+
+    const selection = await select({
+        message: 'Seleccione un wordlist',
+        choices,
+    })
+
+    if (selection === 'back') return null
+
+    if (selection === '__custom__') {
+        const customPath = await input({
+            message: 'Ingrese la ruta al wordlist (absoluta o relativa, vacío para volver):',
+        })
+        return customPath || null
+    }
+
+    return selection
+}
 
 export async function handleGobuster() {
     const mode = await select({
@@ -13,14 +41,14 @@ export async function handleGobuster() {
     const url = await input({
         message: mode === 'dns'
             ? 'Cual es el dominio a analizar? (vacío para volver)'
-            : 'Cual es la URL a analizar? (vacío para volver)',
+            : mode === 'fuzz'
+                ? 'Cual es la URL a analizar? (usar FUZZ como placeholder, vacío para volver)'
+                : 'Cual es la URL a analizar? (vacío para volver)',
     })
 
     if (!url) return 'back'
 
-    const wordlist = await input({
-        message: 'Ruta al wordlist (vacío para volver)',
-    })
+    const wordlist = await selectWordlist(mode)
 
     if (!wordlist) return 'back'
 
